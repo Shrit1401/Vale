@@ -1,6 +1,6 @@
 name: vale
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.3.2
+  slide_to_act: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -18,3 +19,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - images/
