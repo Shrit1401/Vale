@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vale/utils/routes.dart';
 
 class JournalsPage extends StatelessWidget {
   const JournalsPage({super.key});
@@ -61,8 +62,25 @@ class JournalsPage extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.history, size: 44, color: Colors.black),
-              Icon(Icons.auto_awesome_outlined, size: 44, color: Colors.black),
+              IconButton(
+                icon: Icon(Icons.mic, size: 44, color: Colors.black),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, ValeRoutes.homeRoute);
+                },
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.auto_awesome_outlined,
+                  size: 44,
+                  color: Colors.black,
+                ),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    ValeRoutes.journalRoute,
+                  );
+                },
+              ),
             ],
           ),
         ),

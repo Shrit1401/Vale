@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:vale/component/waveform.dart';
+import 'package:vale/utils/routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -79,8 +80,28 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.history, size: 44, color: Colors.white),
-              Icon(Icons.auto_awesome_outlined, size: 44, color: Colors.white),
+              IconButton(
+                icon: Icon(Icons.history, size: 44, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    ValeRoutes.journalRoute,
+                  );
+                },
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.auto_awesome_outlined,
+                  size: 44,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    ValeRoutes.journalRoute,
+                  );
+                },
+              ),
             ],
           ),
         ),
