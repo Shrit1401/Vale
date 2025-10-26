@@ -1,36 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:slide_to_act/slide_to_act.dart';
-import 'dart:math';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-  final List<String> quotes = [
-    'One life, Play Hard',
-    'Dream big, Start small',
-    'Be bold, Be brave',
-    'Live free, Love hard',
-    'Stay hungry, Stay foolish',
-    'Work smart, Play harder',
-    'Think big, Act small',
-    'Stay curious, Stay humble',
-    'Be kind, Be fierce',
-    'Rise up, Shine bright',
-    'Stay strong, Stay true',
-    'Be fearless, Be free',
-    'Chase dreams, Catch stars',
-    'Stay wild, Stay free',
-    'Be brave, Be bold',
-    'Live loud, Love deep',
-    'Stay hungry, Stay humble',
-    'Be fierce, Be free',
-    'Dream wild, Live free',
-    'Stay bold, Stay true',
-  ];
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-  String getRandomQuote() {
-    final random = Random();
-    return quotes[random.nextInt(quotes.length)];
+class _HomePageState extends State<HomePage> {
+  bool isRecording = false;
+
+  void toggleRecording() {
+    setState(() {
+      isRecording = !isRecording;
+    });
+    if (isRecording) {
+      print('Started recording');
+    } else {
+      print('Stopped recording');
+    }
   }
 
   @override
@@ -48,6 +36,24 @@ class HomePage extends StatelessWidget {
         ),
       ),
 
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: 24), // added padding from bottom
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: EdgeInsets.only(left: 22, right: 22, bottom: 8, top: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(Icons.history, size: 44, color: Colors.white),
+              Icon(Icons.auto_awesome_outlined, size: 44, color: Colors.white),
+            ],
+          ),
+        ),
+      ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,7 +61,7 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 24.0, top: 32.0),
 
             child: Text(
-              getRandomQuote(),
+              "Your Voice Matters",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 50,
@@ -71,69 +77,49 @@ class HomePage extends StatelessWidget {
             child: Center(child: Image.asset('images/soundwaveblack.png')),
           ),
           Spacer(),
-          // slide to start text
+          // play/pause button
           Padding(
             padding: const EdgeInsets.only(
               bottom: 16.0,
               left: 16.0,
               right: 16.0,
             ),
-            child: SlideAction(
-              elevation: 0,
-              innerColor: Colors.white,
-
-              outerColor: const Color(0xFF1C1C1C),
-              borderRadius: 18,
-
-              text: "slide to record",
-              textStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: !isRecording ? Color(0xFF1C1C1C) : Color(0xFF1F5EFF),
+                borderRadius: BorderRadius.circular(18),
               ),
-              onSubmit: () {
-                print('submit');
-                return null;
-              },
-            ),
-          ),
-          SizedBox(height: 12),
-          // three dots indicator
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: toggleRecording,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        isRecording ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        isRecording ? "pause recording" : "start recording",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 12),
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF1F5EFF),
+              ),
+            ),
+          ),
 
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 32),
+          // three dots indicator
         ],
       ),
     );
