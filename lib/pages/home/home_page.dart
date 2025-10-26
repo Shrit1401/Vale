@@ -1,4 +1,10 @@
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
+import 'package:vale/component/waveform.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,15 +15,41 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool isRecording = false;
+  String? recordingFilePath;
+  final AudioRecorder audioRecorder = AudioRecorder();
 
-  void toggleRecording() {
-    setState(() {
-      isRecording = !isRecording;
-    });
+  @override
+  void dispose() {
+    audioRecorder.dispose();
+    super.dispose();
+  }
+
+  void handleRecording() async {
     if (isRecording) {
-      print('Started recording');
+      String? filePath = await audioRecorder.stop();
+      if (filePath != null) {
+        setState(() {
+          isRecording = false;
+          recordingFilePath = filePath;
+        });
+      }
     } else {
-      print('Stopped recording');
+      if (await audioRecorder.hasPermission()) {
+        final Directory appDocsDir = await getApplicationDocumentsDirectory();
+        final String timestamp = DateTime.now().millisecondsSinceEpoch
+            .toString();
+        final String filePath = p.join(
+          appDocsDir.path,
+          "recording_$timestamp.wav",
+        );
+
+        await audioRecorder.start(const RecordConfig(), path: filePath);
+
+        setState(() {
+          isRecording = true;
+          recordingFilePath = null;
+        });
+      }
     }
   }
 
@@ -61,7 +93,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.only(left: 24.0, top: 32.0),
 
             child: Text(
-              "Your Voice Matters",
+              "Nothing Matters",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 50,
@@ -74,7 +106,7 @@ class _HomePageState extends State<HomePage> {
           // image centered
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Center(child: Image.asset('images/soundwaveblack.png')),
+            child: Center(child: WaveFormGenerate(isRecording: isRecording)),
           ),
           Spacer(),
           // play/pause button
@@ -94,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(18),
-                  onTap: toggleRecording,
+                  onTap: handleRecording,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
