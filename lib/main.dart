@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vale/pages/home/home_page.dart';
+import 'package:vale/utils/hive/db_services.dart';
 import 'package:vale/utils/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseService.init();
   runApp(MainApp());
 }
 

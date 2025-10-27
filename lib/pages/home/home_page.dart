@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:vale/component/waveform.dart';
+import 'package:vale/utils/hive/hive_local.dart';
 import 'package:vale/utils/routes.dart';
+import 'package:vale/utils/types/journal.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,6 +20,8 @@ class _HomePageState extends State<HomePage> {
   bool isRecording = false;
   String? recordingFilePath;
   final AudioRecorder audioRecorder = AudioRecorder();
+  DateTime? recordingStartTime;
+  int recordingDurationInSeconds = 0;
 
   @override
   void dispose() {
@@ -25,13 +29,38 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  Future<String> _generateJournalTitle() async {
+    final journals = await HiveLocal.getAllJournals();
+    final nextNumber = journals.length + 1;
+    return 'journal#${nextNumber.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> saveJournal(String path, int durationInSeconds) async {
+    final title = await _generateJournalTitle();
+    final journal = Journal(
+      title: title,
+      date: DateTime.now(),
+      path: path,
+      durationInSeconds: durationInSeconds,
+    );
+    await HiveLocal.saveJournal(journal);
+  }
+
   void handleRecording() async {
     if (isRecording) {
       String? filePath = await audioRecorder.stop();
       if (filePath != null) {
+        if (recordingStartTime != null) {
+          recordingDurationInSeconds = DateTime.now()
+              .difference(recordingStartTime!)
+              .inSeconds;
+          await saveJournal(filePath, recordingDurationInSeconds);
+        }
+
         setState(() {
           isRecording = false;
           recordingFilePath = filePath;
+          recordingStartTime = null;
         });
       }
     } else {
@@ -49,6 +78,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           isRecording = true;
           recordingFilePath = null;
+          recordingStartTime = DateTime.now();
         });
       }
     }
