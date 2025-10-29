@@ -3,6 +3,7 @@ import 'package:vale/utils/routes.dart';
 import 'package:vale/utils/hive/db_services.dart';
 import 'package:vale/utils/types/journal.dart';
 import 'dart:math' as math;
+import 'package:vale/component/black_animated_bottom_nav.dart';
 
 class StatsPage extends StatefulWidget {
   const StatsPage({super.key});
@@ -23,7 +24,7 @@ class _StatsPageState extends State<StatsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFF),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -37,31 +38,15 @@ class _StatsPageState extends State<StatsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 24),
-        child: Container(
-          padding: EdgeInsets.only(left: 22, right: 22, bottom: 8, top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Icon(Icons.mic, size: 44, color: Colors.black),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, ValeRoutes.homeRoute);
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.bar_chart, size: 44, color: Colors.black),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    ValeRoutes.statsRoute,
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: BlackAnimatedBottomNav(
+        currentIndex: 2,
+        onTap: (i) {
+          if (i == 0) {
+            Navigator.pushReplacementNamed(context, ValeRoutes.homeRoute);
+          } else if (i == 1) {
+            Navigator.pushReplacementNamed(context, ValeRoutes.journalRoute);
+          }
+        },
       ),
       body: FutureBuilder<List<Journal>>(
         future: _futureJournals,
@@ -339,14 +324,7 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFF1F5EFF).withOpacity(0.08),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
-        border: Border.all(color: Color(0xFF1F5EFF).withOpacity(0.1)),
+        border: Border.all(color: Color(0xFF1F5EFF).withOpacity(0.10)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,14 +365,7 @@ class _CardSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18.0),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFF1F5EFF).withOpacity(0.08),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
-        border: Border.all(color: Color(0xFF1F5EFF).withOpacity(0.1)),
+        border: Border.all(color: Color(0xFF1F5EFF).withOpacity(0.10)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,7 +438,7 @@ class _LineChartPainter extends CustomPainter {
       ..close();
 
     final gridPaint = Paint()
-      ..color = Color(0xFF1F5EFF).withOpacity(0.1)
+      ..color = Color(0xFF1F5EFF).withOpacity(0.10)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     for (int i = 1; i <= 3; i++) {
@@ -512,7 +483,7 @@ class _BarChartPainter extends CustomPainter {
     final gap = barWidth * 0.6;
     final paint = Paint()..color = color;
     final gridPaint = Paint()
-      ..color = Color(0xFF1F5EFF).withOpacity(0.1)
+      ..color = Color(0xFF1F5EFF).withOpacity(0.10)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     for (int i = 1; i <= 3; i++) {

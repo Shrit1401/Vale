@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:vale/component/waveform.dart';
+import 'package:vale/component/black_animated_bottom_nav.dart';
 import 'package:vale/utils/hive/hive_local.dart';
 import 'package:vale/utils/routes.dart';
 import 'package:vale/utils/types/journal.dart';
@@ -100,38 +101,15 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 24), // added padding from bottom
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          padding: EdgeInsets.only(left: 22, right: 22, bottom: 8, top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Icon(Icons.history, size: 44, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    ValeRoutes.journalRoute,
-                  );
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.bar_chart, size: 44, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    ValeRoutes.statsRoute,
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: BlackAnimatedBottomNav(
+        currentIndex: 0,
+        onTap: (i) {
+          if (i == 1) {
+            Navigator.pushReplacementNamed(context, ValeRoutes.journalRoute);
+          } else if (i == 2) {
+            Navigator.pushReplacementNamed(context, ValeRoutes.statsRoute);
+          }
+        },
       ),
 
       body: Column(

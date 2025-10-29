@@ -3,6 +3,7 @@ import 'package:vale/pages/record/record_page.dart';
 import 'package:vale/utils/hive/hive_local.dart';
 import 'package:vale/utils/routes.dart';
 import 'package:vale/utils/types/journal.dart';
+import 'package:vale/component/black_animated_bottom_nav.dart';
 
 class JournalsPage extends StatefulWidget {
   const JournalsPage({super.key});
@@ -105,35 +106,15 @@ class _JournalsPageState extends State<JournalsPage> {
         ),
       ),
 
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 24), // added padding from bottom
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          padding: EdgeInsets.only(left: 22, right: 22, bottom: 8, top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Icon(Icons.mic, size: 44, color: Colors.black),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, ValeRoutes.homeRoute);
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.bar_chart, size: 44, color: Colors.black),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    ValeRoutes.statsRoute,
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: BlackAnimatedBottomNav(
+        currentIndex: 1,
+        onTap: (i) {
+          if (i == 0) {
+            Navigator.pushReplacementNamed(context, ValeRoutes.homeRoute);
+          } else if (i == 2) {
+            Navigator.pushReplacementNamed(context, ValeRoutes.statsRoute);
+          }
+        },
       ),
 
       body: _isLoading
