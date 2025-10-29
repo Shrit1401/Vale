@@ -95,14 +95,6 @@ class _JournalsPageState extends State<JournalsPage> {
         centerTitle: true,
         backgroundColor: Colors.white,
 
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 32),
-          onPressed: () {
-            Navigator.of(context).maybePop();
-          },
-          splashRadius: 24,
-        ),
-
         title: Text(
           'vale.',
           style: TextStyle(
@@ -131,15 +123,11 @@ class _JournalsPageState extends State<JournalsPage> {
                 },
               ),
               IconButton(
-                icon: Icon(
-                  Icons.auto_awesome_outlined,
-                  size: 44,
-                  color: Colors.black,
-                ),
+                icon: Icon(Icons.bar_chart, size: 44, color: Colors.black),
                 onPressed: () {
                   Navigator.pushReplacementNamed(
                     context,
-                    ValeRoutes.journalRoute,
+                    ValeRoutes.statsRoute,
                   );
                 },
               ),

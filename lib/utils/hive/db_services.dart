@@ -1,11 +1,13 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vale/utils/types/journal.dart';
+import 'package:vale/utils/types/journal_emotion_adapter.dart';
 
 class DatabaseService {
   static const String journalBoxName = 'journals';
 
   static Future<void> init() async {
     await Hive.initFlutter();
+    Hive.registerAdapter(JournalEmotionAdapter());
     Hive.registerAdapter(JournalAdapter());
     await Hive.openBox<Journal>(journalBoxName);
   }

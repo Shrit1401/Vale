@@ -42,6 +42,7 @@ class _HomePageState extends State<HomePage> {
       date: DateTime.now(),
       path: path,
       durationInSeconds: durationInSeconds,
+      emotion: JournalEmotion.defaultEmotion,
     );
     await HiveLocal.saveJournal(journal);
   }
@@ -120,15 +121,11 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               IconButton(
-                icon: Icon(
-                  Icons.auto_awesome_outlined,
-                  size: 44,
-                  color: Colors.white,
-                ),
+                icon: Icon(Icons.bar_chart, size: 44, color: Colors.white),
                 onPressed: () {
                   Navigator.pushReplacementNamed(
                     context,
-                    ValeRoutes.journalRoute,
+                    ValeRoutes.statsRoute,
                   );
                 },
               ),

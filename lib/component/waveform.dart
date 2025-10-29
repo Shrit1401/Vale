@@ -5,7 +5,14 @@ import 'package:waveform_flutter/waveform_flutter.dart';
 
 class WaveFormGenerate extends StatefulWidget {
   final bool isRecording;
-  const WaveFormGenerate({super.key, required this.isRecording});
+  final Color? color;
+  final double? height;
+  const WaveFormGenerate({
+    super.key,
+    required this.isRecording,
+    this.color,
+    this.height,
+  });
 
   @override
   State<WaveFormGenerate> createState() => _WaveFormGenerateState();
@@ -58,14 +65,16 @@ class _WaveFormGenerateState extends State<WaveFormGenerate> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: widget.height ?? 200,
       width: double.infinity,
       child: AnimatedWaveList(
         stream: _amplitudeController.stream,
         barBuilder: (animation, amplitude) => WaveFormBar(
           animation: animation,
           amplitude: amplitude,
-          color: widget.isRecording ? Colors.white : Colors.white.withAlpha(77),
+          color:
+              widget.color ??
+              (widget.isRecording ? Colors.white : Colors.white.withAlpha(77)),
         ),
       ),
     );

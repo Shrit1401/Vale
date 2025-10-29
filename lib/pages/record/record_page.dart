@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:vale/utils/hive/hive_local.dart';
+import 'package:vale/utils/routes.dart';
 import 'package:vale/utils/types/journal.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:vale/component/minimal_audio_waveform.dart';
+// duplicate removed
 
 class RecordPage extends StatefulWidget {
   final Journal? journal;
@@ -10,15 +14,73 @@ class RecordPage extends StatefulWidget {
   State<RecordPage> createState() => _RecordPageState();
 }
 
+class _EmotionChip extends StatelessWidget {
+  final JournalEmotion emotion;
+  final String label;
+  final String emoji;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _EmotionChip({
+    required this.emotion,
+    required this.label,
+    required this.emoji,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = selected ? Color(0xFFE8F0FF) : Colors.white;
+    final border = selected ? Color(0xFF1F5EFF) : Colors.grey[300]!;
+    final text = selected ? Color(0xFF1F5EFF) : Colors.black;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(emoji, style: TextStyle(fontSize: 16)),
+              SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(color: text, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _RecordPageState extends State<RecordPage> {
   AudioPlayer? _audioPlayer;
   bool _isPlaying = false;
   bool _isLoading = false;
+  JournalEmotion _selectedEmotion = JournalEmotion.defaultEmotion;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    _selectedEmotion = _safeJournalEmotion(widget.journal);
     _audioPlayer!.playerStateStream.listen((state) {
       setState(() {
         _isPlaying = state.playing;
@@ -29,6 +91,35 @@ class _RecordPageState extends State<RecordPage> {
         }
       });
     });
+  }
+
+  JournalEmotion _safeJournalEmotion(Journal? journal) {
+    try {
+      if (journal == null) return JournalEmotion.defaultEmotion;
+      final value = journal.emotion; // may throw if legacy null
+      return value;
+    } catch (_) {
+      return JournalEmotion.defaultEmotion;
+    }
+  }
+
+  Future<void> _updateEmotion(JournalEmotion emotion) async {
+    if (widget.journal == null) {
+      return;
+    }
+    final updated = Journal(
+      title: widget.journal!.title,
+      date: widget.journal!.date,
+      durationInSeconds: widget.journal!.durationInSeconds,
+      path: widget.journal!.path,
+      emotion: emotion,
+    );
+    await HiveLocal.saveJournal(updated);
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Emotion updated')));
+    }
   }
 
   @override
@@ -44,15 +135,19 @@ class _RecordPageState extends State<RecordPage> {
       if (_isPlaying) {
         await _audioPlayer!.pause();
       } else {
-        if (_audioPlayer!.audioSource == null) {
+        if (_audioPlayer!.audioSource == null ||
+            _audioPlayer!.playerState.processingState ==
+                ProcessingState.completed) {
           await _audioPlayer!.setFilePath(widget.journal!.path);
         }
         await _audioPlayer!.play();
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error playing audio: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error playing audio: $e')));
+      }
     }
   }
 
@@ -74,6 +169,60 @@ class _RecordPageState extends State<RecordPage> {
     return months[month - 1];
   }
 
+  String _emotionLabel(JournalEmotion emotion) {
+    switch (emotion) {
+      case JournalEmotion.happy:
+        return 'Happy';
+      case JournalEmotion.sad:
+        return 'Sad';
+      case JournalEmotion.angry:
+        return 'Angry';
+      case JournalEmotion.anxious:
+        return 'Anxious';
+      case JournalEmotion.excited:
+        return 'Excited';
+      case JournalEmotion.peaceful:
+        return 'Peaceful';
+      case JournalEmotion.defaultEmotion:
+        return 'Emotion';
+    }
+  }
+
+  String _emotionEmoji(JournalEmotion emotion) {
+    switch (emotion) {
+      case JournalEmotion.happy:
+        return '😊';
+      case JournalEmotion.sad:
+        return '😢';
+      case JournalEmotion.angry:
+        return '😠';
+      case JournalEmotion.anxious:
+        return '😰';
+      case JournalEmotion.excited:
+        return '🤩';
+      case JournalEmotion.peaceful:
+        return '🧘';
+      case JournalEmotion.defaultEmotion:
+        return '🙂';
+    }
+  }
+
+  // removed unused helpers
+
+  void _deleteJournal() {
+    HiveLocal.deleteJournal(widget.journal!.path);
+    if (mounted) {
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(ValeRoutes.journalRoute, (route) => false);
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Journal deleted')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +233,37 @@ class _RecordPageState extends State<RecordPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.delete, color: Colors.red, size: 32),
-            onPressed: () {},
+            onPressed: () async {
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Delete Journal?'),
+                  content: Text(
+                    'Are you sure you want to delete this journal entry? This action cannot be undone.',
+                  ),
+                  actions: [
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
+                    TextButton(
+                      child: Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onPressed: () => {_deleteJournal()},
+                    ),
+                  ],
+                ),
+              );
+
+              if (result == true) {
+                _deleteJournal();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              }
+            },
             splashRadius: 24,
           ),
         ],
@@ -117,8 +296,21 @@ class _RecordPageState extends State<RecordPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.history, size: 44, color: Colors.black),
-              Icon(Icons.auto_awesome_outlined, size: 44, color: Colors.black),
+              IconButton(
+                icon: Icon(Icons.mic, size: 44, color: Colors.black),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, ValeRoutes.homeRoute);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.bar_chart, size: 44, color: Colors.black),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    ValeRoutes.statsRoute,
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -154,13 +346,75 @@ class _RecordPageState extends State<RecordPage> {
                     ),
                   ),
                 ),
+                SizedBox(height: 18),
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        'what was your emotion in this moment?',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            for (final e in const [
+                              JournalEmotion.happy,
+                              JournalEmotion.excited,
+                              JournalEmotion.peaceful,
+                              JournalEmotion.anxious,
+                              JournalEmotion.sad,
+                              JournalEmotion.angry,
+                            ])
+                              _EmotionChip(
+                                emotion: e,
+                                selected: _selectedEmotion == e,
+                                label: _emotionLabel(e),
+                                emoji: _emotionEmoji(e),
+                                onTap: () async {
+                                  setState(() {
+                                    _selectedEmotion = e;
+                                  });
+                                  await _updateEmotion(e);
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
           SizedBox(height: 100),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Center(child: Image.asset('images/soundwavewhite.png')),
+            child: Center(
+              child: MinimalAudioWaveform(
+                audioPlayer: _audioPlayer,
+                color: Colors.black,
+                height: 56,
+                itemCount: 110,
+              ),
+            ),
           ),
 
           Center(
@@ -217,7 +471,7 @@ class _RecordPageState extends State<RecordPage> {
                       : Icon(
                           _isPlaying ? Icons.pause : Icons.play_arrow,
                           color: Color(0xFF1F5EFF),
-                          size: 33,
+                          size: 70,
                         ),
                 ),
               ),
